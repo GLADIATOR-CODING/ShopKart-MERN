@@ -18,12 +18,31 @@ const customerSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    wishlist: [
-        {
+    wishlist: {
+        type: [{
+
             type: mongoose.Schema.Types.ObjectId,
             ref: "Product"
-        }
-    ]
+        }],
+        default: []
+    },
+    cart: {
+        type: [
+            {
+                product: {
+                    type: mongoose.Schema.Types.ObjectId,
+                    ref: "Product",
+                    required: true
+                },
+                quantity: {
+                    type: Number,
+                    default: 1,
+                    min: 1
+                }
+            }
+        ],
+        default: []
+    }
 }, { timestamps: true })
 
 const Customer = mongoose.model("Customer", customerSchema)

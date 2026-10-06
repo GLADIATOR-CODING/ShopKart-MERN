@@ -11,7 +11,9 @@ const registerUser = async (req, res) => {
         if (!fullName || !email || !password || !phone) {
             return res.status(400).json({ message: "Missing Fields" })
         }
-        const Emailexisting = await Customer.findOne({ email })
+
+        const cleanEmail = email.trim().toLowerCase()
+        const Emailexisting = await Customer.findOne({ email: cleanEmail })
         if (password.length < 6) {
             return res.status(400).json({ message: "Password too short" })
         }
@@ -22,7 +24,7 @@ const registerUser = async (req, res) => {
         const hashP = await bcrypt.hash(password, 10)
         const newCustomer = await Customer.create({
             fullName,
-            email,
+            email: cleanEmail,
             password: hashP,
             phone
         })
@@ -32,7 +34,7 @@ const registerUser = async (req, res) => {
             customer: {
                 _id: newCustomer._id,
                 fullName: fullName,
-                email: email,
+                email: cleanEmail,
                 phone: phone
             }
         })
@@ -49,7 +51,9 @@ const loginUser = async (req, res) => {
         if (!email || !password) {
             return res.status(400).json({ message: "Email and password are required" });
         }
-        const user = await Customer.findOne({ email })
+
+        const cleanEmail = email.trim().toLowerCase()
+        const user = await Customer.findOne({ email: cleanEmail })
         if (!user) {
             return res.status(401).json({ message: "Invalid Email or Password" })
         }
@@ -61,8 +65,9 @@ const loginUser = async (req, res) => {
         const token = generateTokenandSetCookie(res, user._id)
 
         return res.status(200).json({
-            sucess: true,
-            message: "Login Successfull",
+            success: true,
+            message: "Login Successful",
+            token,
             customer: {
                 _id: user._id,
                 fullName: user.fullName,
@@ -81,7 +86,7 @@ const logoutUser = async (req, res) => {
         res.clearCookie("token", {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
-            sameSite: "strict"
+            sameSite: process.env.NODE_ENV === "production" ? "none" : "lax"
         })
         return res.status(200).json({
             sucess: true,
@@ -105,4 +110,39 @@ const showCustomer = async (req, res) => {
     }
 }
 
-export { registerUser, loginUser, logoutUser, showCustomer }
+const changePassword = async (req, res) => {
+    try {
+        const { oldPassword, newPassword } = req.body;
+
+        if (!oldPassword || !newPassword) {
+            return res.status(400).json({ message: "Both old and new passwords are required" });
+        }
+
+        if (newPassword.length < 6) {
+            return res.status(400).json({ message: "New password must be at least 6 characters long" });
+        }
+
+        const customer = await Customer.findById(req.user._id);
+        if (!customer) {
+            return res.status(404).json({ message: "Customer not found" });
+        }
+
+        const isMatch = await bcrypt.compare(oldPassword, customer.password);
+        if (!isMatch) {
+            return res.status(401).json({ message: "Incorrect old password" });
+        }
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        customer.password = hashedPassword;
+        await customer.save();
+
+        return res.status(200).json({
+            success: true,
+            message: "Password changed successfully"
+        });
+    } catch (err) {
+        return res.status(500).json({ message: err.message });
+    }
+};
+
+export { registerUser, loginUser, logoutUser, showCustomer, changePassword }

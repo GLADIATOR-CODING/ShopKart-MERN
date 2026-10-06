@@ -6,6 +6,7 @@ const Login = () => {
     const navigate = useNavigate();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
 
@@ -13,7 +14,11 @@ const Login = () => {
         e.preventDefault();
         setError("");
 
-        if (!email.trim() || !password) {
+        // Support direct DOM values in case browser autofill did not trigger onChange
+        const emailVal = (email || e.target.email?.value || "").trim().toLowerCase();
+        const passwordVal = password || e.target.password?.value || "";
+
+        if (!emailVal || !passwordVal) {
             setError("Email and password are required.");
             return;
         }
@@ -21,15 +26,28 @@ const Login = () => {
         try {
             setLoading(true);
             const response = await api.post("/customers/login", {
-                email: email.trim(),
-                password
+                email: emailVal,
+                password: passwordVal
             });
 
             if (response.status === 200) {
-                navigate("/home");
+                if (response.data?.token) {
+                    try {
+                        localStorage.setItem("shopkart_token", response.data.token);
+                    } catch {
+                        // ignore storage error
+                    }
+                }
+                navigate("/home", { state: { customer: response.data.customer } });
             }
         } catch (err) {
-            setError(err.response?.data?.message || "Invalid credentials");
+            if (!err.response) {
+                setError(err.code === "ECONNABORTED" 
+                    ? "Connection timed out. Please try again." 
+                    : "Unable to reach server. Please check your connection and try again.");
+            } else {
+                setError(err.response?.data?.message || "Invalid credentials");
+            }
         } finally {
             setLoading(false);
         }
@@ -68,15 +86,26 @@ const Login = () => {
 
                     <div className="form-group">
                         <label className="form-label" htmlFor="password">Password</label>
-                        <input
-                            id="password"
-                            type="password"
-                            className="form-input"
-                            placeholder="Enter your password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                        />
+                        <div className="password-input-wrapper">
+                            <input
+                                id="password"
+                                type={showPassword ? "text" : "password"}
+                                className="form-input"
+                                placeholder="Enter your password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                required
+                            />
+                            <button
+                                type="button"
+                                className="btn-toggle-password"
+                                onClick={() => setShowPassword(!showPassword)}
+                                title={showPassword ? "Hide password" : "Show password"}
+                                aria-label={showPassword ? "Hide password" : "Show password"}
+                            >
+                                {showPassword ? "🙈" : "👁️"}
+                            </button>
+                        </div>
                     </div>
 
                     <button type="submit" className="btn-primary" disabled={loading}>

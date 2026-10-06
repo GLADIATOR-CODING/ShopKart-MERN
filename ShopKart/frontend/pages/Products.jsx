@@ -6,6 +6,8 @@ import SearchBar from '../Components/SearchBar.jsx';
 
 const Products = () => {
     const [products, setProducts] = useState([]);
+    const [wishlistIds, setWishlistIds] = useState(new Set());
+    const [customer, setCustomer] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
@@ -18,8 +20,27 @@ const Products = () => {
             if (search) params.append('search', search);
             if (category) params.append('category', category);
             
-            const response = await api.get(`/products?${params.toString()}`);
-            setProducts(response.data.products || []);
+            // Fetch products, user wishlist, and customer data in parallel
+            const [productsRes, wishlistRes, customerRes] = await Promise.allSettled([
+                api.get(`/products?${params.toString()}`),
+                api.get('/wishlist'),
+                api.get('/customers/me')
+            ]);
+
+            if (productsRes.status === 'fulfilled') {
+                setProducts(productsRes.value.data?.products || []);
+            } else {
+                throw new Error('Failed to load products');
+            }
+
+            if (wishlistRes.status === 'fulfilled') {
+                const savedIds = new Set((wishlistRes.value.data?.wishlist || []).map(p => p._id));
+                setWishlistIds(savedIds);
+            }
+
+            if (customerRes.status === 'fulfilled') {
+                setCustomer(customerRes.value.data?.customer || customerRes.value.data);
+            }
         } catch (err) {
             console.error('Error fetching products:', err);
             setError('Something went wrong while loading products.');
@@ -36,8 +57,17 @@ const Products = () => {
         fetchProducts(searchTerm, category);
     }, [fetchProducts]);
 
-    // Simple mock customer since auth state context isn't available here
-    const customer = { fullName: 'Guest' };
+    const handleCardToggle = (productId, isSaved) => {
+        setWishlistIds((prev) => {
+            const next = new Set(prev);
+            if (isSaved) {
+                next.add(productId);
+            } else {
+                next.delete(productId);
+            }
+            return next;
+        });
+    };
 
     return (
         <div className="page-container">
@@ -72,7 +102,12 @@ const Products = () => {
                 {!loading && !error && products.length > 0 && (
                     <div className="products-grid">
                         {products.map(product => (
-                            <ProductCard key={product._id} product={product} />
+                            <ProductCard 
+                                key={product._id} 
+                                product={product} 
+                                isWishlistedInitial={wishlistIds.has(product._id)}
+                                onToggle={handleCardToggle}
+                            />
                         ))}
                     </div>
                 )}

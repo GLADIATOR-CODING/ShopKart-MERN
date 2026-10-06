@@ -1,0 +1,13 @@
+{
+  "watch": [
+    "ShopKart/backend"
+  ],
+  "ext": "js,json",
+  "ignore": [
+    "ShopKart/frontend",
+    "ShopKart/frontend/*",
+    "node_modules",
+    "dist"
+  ],
+  "delay": "500"
+}

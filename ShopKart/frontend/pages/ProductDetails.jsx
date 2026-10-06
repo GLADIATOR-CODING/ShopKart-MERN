@@ -2,21 +2,50 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../services/api.js';
 import Navbar from '../Components/Navbar.jsx';
+import { useCart } from '../context/CartContext.jsx';
 
 const ProductDetails = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const [product, setProduct] = useState(null);
+    const [customer, setCustomer] = useState(null);
+    const [isWishlisted, setIsWishlisted] = useState(false);
+    const [isWishlistLoading, setIsWishlistLoading] = useState(false);
+    const [isAddingToCart, setIsAddingToCart] = useState(false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const { addToCart, cartItems } = useCart();
+    const isInCart = (cartItems || []).some(
+        (item) => (item.product?._id || item.product) === id
+    );
 
     useEffect(() => {
-        const fetchProduct = async () => {
+        const fetchProductAndWishlist = async () => {
             try {
                 setLoading(true);
                 setError(null);
-                const response = await api.get(`/products/${id}`);
-                setProduct(response.data);
+
+                // Fetch product details, user wishlist, and profile in parallel
+                const [productRes, wishlistRes, customerRes] = await Promise.allSettled([
+                    api.get(`/products/${id}`),
+                    api.get('/wishlist'),
+                    api.get('/customers/me')
+                ]);
+
+                if (productRes.status === 'fulfilled') {
+                    setProduct(productRes.value.data);
+                } else {
+                    throw new Error('Product not found');
+                }
+
+                if (wishlistRes.status === 'fulfilled') {
+                    const savedIds = (wishlistRes.value.data?.wishlist || []).map(p => p._id);
+                    setIsWishlisted(savedIds.includes(id));
+                }
+
+                if (customerRes.status === 'fulfilled') {
+                    setCustomer(customerRes.value.data?.customer || customerRes.value.data);
+                }
             } catch (err) {
                 console.error('Error fetching product details:', err);
                 setError('Something went wrong while loading the product.');
@@ -26,11 +55,21 @@ const ProductDetails = () => {
         };
 
         if (id) {
-            fetchProduct();
+            fetchProductAndWishlist();
         }
     }, [id]);
 
-    const customer = { fullName: 'Guest' };
+    const handleWishlistToggle = async () => {
+        try {
+            setIsWishlistLoading(true);
+            const res = await api.patch(`/wishlist/${id}/toggle`);
+            setIsWishlisted(res.data?.saved ?? !isWishlisted);
+        } catch (err) {
+            alert(err.response?.data?.error || 'Please login to manage your wishlist');
+        } finally {
+            setIsWishlistLoading(false);
+        }
+    };
 
     return (
         <div className="page-container">
@@ -71,13 +110,63 @@ const ProductDetails = () => {
                                 </span>
                             </div>
 
-                            <button 
-                                className="btn-add-to-cart" 
-                                disabled={product.stock === 0}
-                                onClick={() => alert('Add to cart clicked! (UI only for now)')}
-                            >
-                                Add to Cart
-                            </button>
+                            <div className="product-details-actions">
+                                {isInCart ? (
+                                    <>
+                                        <button 
+                                            className="btn-go-to-cart"
+                                            onClick={() => navigate('/cart')}
+                                        >
+                                            🛒 Go to Cart &rarr;
+                                        </button>
+                                        <button 
+                                            className="btn-add-to-cart btn-add-another-details" 
+                                            disabled={product.stock === 0 || isAddingToCart}
+                                            onClick={async () => {
+                                                try {
+                                                    setIsAddingToCart(true);
+                                                    await addToCart(product._id);
+                                                } catch (err) {
+                                                    alert(err.response?.data?.message || 'Failed to add to cart');
+                                                } finally {
+                                                    setIsAddingToCart(false);
+                                                }
+                                            }}
+                                        >
+                                            {isAddingToCart ? '⏳ Adding...' : '+ Add Another'}
+                                        </button>
+                                    </>
+                                ) : (
+                                    <button 
+                                        className="btn-add-to-cart" 
+                                        disabled={product.stock === 0 || isAddingToCart}
+                                        onClick={async () => {
+                                            try {
+                                                setIsAddingToCart(true);
+                                                await addToCart(product._id);
+                                            } catch (err) {
+                                                alert(err.response?.data?.message || 'Failed to add to cart');
+                                            } finally {
+                                                setIsAddingToCart(false);
+                                            }
+                                        }}
+                                    >
+                                        {isAddingToCart ? '⏳ Adding...' : 'Add to Cart 🛒'}
+                                    </button>
+                                )}
+                                
+                                <button 
+                                    className={`btn-wishlist-details ${isWishlisted ? 'saved' : ''}`}
+                                    onClick={handleWishlistToggle}
+                                    disabled={isWishlistLoading}
+                                >
+                                    {isWishlistLoading 
+                                        ? '⏳ Updating...' 
+                                        : isWishlisted 
+                                            ? '♥ Remove from Wishlist' 
+                                            : '♡ Add to Wishlist'}
+                                </button>
+                            </div>
                         </div>
                     </div>
                 )}
