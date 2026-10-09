@@ -39,6 +39,12 @@ app.use('/wishlist', wishlistRoutes);
 app.use('/cart', cartRoutes);
 app.use('/orders', orderRoutes);
 
-app.listen(process.env.PORT, () => {
-    console.log("Success in hosting on port:" + process.env.PORT)
-})
+// Export app for Vercel serverless
+export default app;
+
+// Only start the HTTP server when running locally (not on Vercel)
+if (process.env.NODE_ENV !== "production") {
+    app.listen(process.env.PORT || 8000, () => {
+        console.log("Success in hosting on port:" + (process.env.PORT || 8000))
+    })
+}
