@@ -37,14 +37,18 @@ app.use(cors({
 app.use(cookieParser())
 app.use(express.json())
 
-mongoose.connect(process.env.MONGODB_URI, {
-    family: 4,
-    serverSelectionTimeoutMS: 5000,
-    maxPoolSize: 10,
-    minPoolSize: 2
-}).then(() => {
-    console.log("successfully connected to MongoDB")
-}).catch((err) => { console.log("Database connection error:", err.message) })
+try {
+    mongoose.connect(process.env.MONGODB_URI || "", {
+        family: 4,
+        serverSelectionTimeoutMS: 5000,
+        maxPoolSize: 10,
+        minPoolSize: 2
+    }).then(() => {
+        console.log("successfully connected to MongoDB")
+    }).catch((err) => { console.log("Database connection error:", err.message) })
+} catch (err) {
+    console.log("Mongoose connect sync error:", err.message);
+}
 
 app.use("/customers", customerRoutes);
 app.use('/products', productRoutes);

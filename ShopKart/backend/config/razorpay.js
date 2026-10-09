@@ -14,9 +14,14 @@ if (process.env.NODE_ENV !== "production") {
     }
 }
 
-const razorpay = new Razorpay({
-    key_id: process.env.RAZORPAY_KEY_ID,
-    key_secret: process.env.RAZORPAY_KEY_SECRET
-});
+let razorpay = null;
+try {
+    razorpay = new Razorpay({
+        key_id: process.env.RAZORPAY_KEY_ID || "missing_key_id",
+        key_secret: process.env.RAZORPAY_KEY_SECRET || "missing_key_secret"
+    });
+} catch (err) {
+    console.log("Razorpay initialization error:", err.message);
+}
 
 export default razorpay;
