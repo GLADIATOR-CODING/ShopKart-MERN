@@ -43,9 +43,11 @@ app.use(cookieParser())
 app.use(express.json())
 
 const connectDB = async () => {
-    if (mongoose.connection.readyState >= 1) {
+    // 1 = connected
+    if (mongoose.connection.readyState === 1) {
         return null;
     }
+    // Let Mongoose handle concurrent connect() calls (it returns the pending promise if already connecting)
     try {
         let uri = process.env.MONGODB_URI || "";
         uri = uri.replace(/^["']|["']$/g, ""); // Strip accidental quotes
