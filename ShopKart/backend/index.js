@@ -11,10 +11,23 @@ import wishlistRoutes from './routes/wishlist.route.js'
 import cartRoutes from "./routes/cart.route.js"
 import orderRoutes from "./routes/order.route.js"
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
-dotenv.config({ path: path.resolve(__dirname, ".env") })
+// Only load dotenv locally, not on Vercel production where env vars are injected
+if (process.env.NODE_ENV !== "production") {
+    try {
+        const __filename = fileURLToPath(import.meta.url);
+        const __dirname = path.dirname(__filename);
+        dotenv.config({ path: path.resolve(__dirname, ".env") });
+    } catch (err) {
+        console.log("Could not load .env file:", err.message);
+    }
+}
 
 const app = express()
+
+// Add a root route for health check
+app.get("/", (req, res) => {
+    res.status(200).json({ status: "success", message: "ShopKart Backend API is running!" });
+});
 
 app.use(cors({
     origin: true,
