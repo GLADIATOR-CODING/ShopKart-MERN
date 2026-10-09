@@ -26,7 +26,11 @@ const app = express()
 
 // Add a root route for health check
 app.get("/", (req, res) => {
-    res.status(200).json({ status: "success", message: "ShopKart Backend API is running!" });
+    res.status(200).json({ 
+        status: "success", 
+        message: "ShopKart Backend API is running!",
+        dbConfigured: !!process.env.MONGODB_URI 
+    });
 });
 
 app.use(cors({
@@ -39,7 +43,6 @@ app.use(express.json())
 
 try {
     mongoose.connect(process.env.MONGODB_URI || "", {
-        family: 4,
         serverSelectionTimeoutMS: 5000,
         maxPoolSize: 10,
         minPoolSize: 2
