@@ -1,0 +1,30 @@
+{
+  "hooks": {
+    "beforeSubmitPrompt": [
+      {
+        "command": "\"C:\\Users\\kshit\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\" \"C:\\Users\\kshit\\.prismor\\hook-dispatch.py\" hook-dispatch --agent cursor --workspace \"C:\\Users\\kshit\\MERN LAB project\" --mode observe"
+      }
+    ],
+    "beforeShellCommand": [
+      {
+        "command": "\"C:\\Users\\kshit\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\" \"C:\\Users\\kshit\\.prismor\\hook-dispatch.py\" hook-dispatch --agent cursor --workspace \"C:\\Users\\kshit\\MERN LAB project\" --mode observe"
+      }
+    ],
+    "afterShellCommand": [
+      {
+        "command": "\"C:\\Users\\kshit\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\" \"C:\\Users\\kshit\\.prismor\\hook-dispatch.py\" hook-dispatch --agent cursor --workspace \"C:\\Users\\kshit\\MERN LAB project\" --mode observe"
+      }
+    ],
+    "beforeFileWrite": [
+      {
+        "command": "\"C:\\Users\\kshit\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\" \"C:\\Users\\kshit\\.prismor\\hook-dispatch.py\" hook-dispatch --agent cursor --workspace \"C:\\Users\\kshit\\MERN LAB project\" --mode observe"
+      }
+    ],
+    "afterFileWrite": [
+      {
+        "command": "\"C:\\Users\\kshit\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\" \"C:\\Users\\kshit\\.prismor\\hook-dispatch.py\" hook-dispatch --agent cursor --workspace \"C:\\Users\\kshit\\MERN LAB project\" --mode observe"
+      }
+    ]
+  },
+  "version": 1
+}

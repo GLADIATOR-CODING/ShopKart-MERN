@@ -9,6 +9,7 @@ import cors from "cors"
 import productRoutes from './routes/product.route.js'
 import wishlistRoutes from './routes/wishlist.route.js'
 import cartRoutes from "./routes/cart.route.js"
+import orderRoutes from "./routes/order.route.js"
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 dotenv.config({ path: path.resolve(__dirname, ".env") })
@@ -36,6 +37,7 @@ app.use("/customers", customerRoutes);
 app.use('/products', productRoutes);
 app.use('/wishlist', wishlistRoutes);
 app.use('/cart', cartRoutes);
+app.use('/orders', orderRoutes);
 
 app.listen(process.env.PORT, () => {
     console.log("Success in hosting on port:" + process.env.PORT)

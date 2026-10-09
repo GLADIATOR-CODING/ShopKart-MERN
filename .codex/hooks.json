@@ -1,0 +1,48 @@
+{
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"C:\\Users\\kshit\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\" \"C:\\Users\\kshit\\.prismor\\hook-dispatch.py\" hook-dispatch --agent codex --workspace \"C:\\Users\\kshit\\MERN LAB project\" --mode observe"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash|apply_patch|mcp__.*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"C:\\Users\\kshit\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\" \"C:\\Users\\kshit\\.prismor\\hook-dispatch.py\" hook-dispatch --agent codex --workspace \"C:\\Users\\kshit\\MERN LAB project\" --mode observe"
+          }
+        ]
+      }
+    ],
+    "PermissionRequest": [
+      {
+        "matcher": "Bash|apply_patch|mcp__.*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"C:\\Users\\kshit\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\" \"C:\\Users\\kshit\\.prismor\\hook-dispatch.py\" hook-dispatch --agent codex --workspace \"C:\\Users\\kshit\\MERN LAB project\" --mode observe"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash|apply_patch|mcp__.*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"C:\\Users\\kshit\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\" \"C:\\Users\\kshit\\.prismor\\hook-dispatch.py\" hook-dispatch --agent codex --workspace \"C:\\Users\\kshit\\MERN LAB project\" --mode observe"
+          }
+        ]
+      }
+    ]
+  }
+}

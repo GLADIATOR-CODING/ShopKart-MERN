@@ -1,0 +1,51 @@
+{
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"C:\\Users\\kshit\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\" \"C:\\Users\\kshit\\.prismor\\hook-dispatch.py\" hook-dispatch --agent claude --workspace \"C:\\Users\\kshit\\MERN LAB project\" --mode observe"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Task|Agent|Skill|Bash|Read|Edit|MultiEdit|Write|WebFetch|WebSearch|mcp__.*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"C:\\Users\\kshit\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\" \"C:\\Users\\kshit\\.prismor\\hook-dispatch.py\" hook-dispatch --agent claude --workspace \"C:\\Users\\kshit\\MERN LAB project\" --mode observe"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Task|Agent|Skill|Bash|Read|Edit|MultiEdit|Write|WebFetch|WebSearch|mcp__.*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"C:\\Users\\kshit\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\" \"C:\\Users\\kshit\\.prismor\\hook-dispatch.py\" hook-dispatch --agent claude --workspace \"C:\\Users\\kshit\\MERN LAB project\" --mode observe"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"C:\\Users\\kshit\\AppData\\Local\\Programs\\Python\\Python312\\python.exe\" \"C:\\Users\\kshit\\.prismor\\hook-dispatch.py\" hook-dispatch --agent claude --workspace \"C:\\Users\\kshit\\MERN LAB project\" --mode observe"
+          }
+        ]
+      }
+    ]
+  },
+  "env": {
+    "PRISMOR_WORKSPACE": "C:\\Users\\kshit\\MERN LAB project"
+  }
+}

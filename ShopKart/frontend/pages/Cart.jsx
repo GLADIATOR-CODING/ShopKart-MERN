@@ -104,7 +104,7 @@ const Cart = () => {
                             </div>
                             <button 
                                 className="btn-checkout"
-                                onClick={() => alert(`🎉 Order Ready for Checkout! Total: ₹${subtotal.toLocaleString('en-IN')} (${cartCount} items). The Checkout and Payment flow will be connected in Lab-06.`)}
+                                onClick={() => navigate('/checkout')}
                             >
                                 Proceed to Checkout
                             </button>
