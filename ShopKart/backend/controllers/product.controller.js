@@ -50,7 +50,8 @@ const showProducts = async (req, res) => {
             products
         });
     } catch (err) {
-        return res.status(500).json({ error: "Internal server error occurred" });
+        console.error("Error in showProducts:", err);
+        return res.status(500).json({ error: "Internal server error occurred", details: err.message });
     }
 };
 
