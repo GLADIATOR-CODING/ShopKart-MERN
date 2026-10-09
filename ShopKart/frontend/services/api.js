@@ -1,10 +1,11 @@
 import axios from "axios";
 
-// Dynamically use current hostname so testing on a phone over LAN targets computer's backend
-const backendHost = (typeof window !== "undefined" && window.location.hostname) ? window.location.hostname : "localhost";
+// In production (Vercel), set VITE_API_URL to your Render backend URL.
+// In development, falls back to localhost:8000
+const baseURL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
 const api = axios.create({
-    baseURL: `http://${backendHost}:8000`,
+    baseURL,
     withCredentials: true,
     headers: {
         "Content-Type": "application/json"
