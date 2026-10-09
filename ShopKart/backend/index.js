@@ -24,12 +24,13 @@ if (process.env.NODE_ENV !== "production") {
 
 const app = express()
 
-// Add a root route for health check
 app.get("/", (req, res) => {
+    const uri = process.env.MONGODB_URI || "";
     res.status(200).json({ 
         status: "success", 
         message: "ShopKart Backend API is running!",
-        dbConfigured: !!process.env.MONGODB_URI 
+        dbConfigured: !!uri,
+        dbPrefix: uri.substring(0, 15)
     });
 });
 
@@ -41,17 +42,30 @@ app.use(cors({
 app.use(cookieParser())
 app.use(express.json())
 
-try {
-    mongoose.connect(process.env.MONGODB_URI || "", {
-        serverSelectionTimeoutMS: 5000,
-        maxPoolSize: 10,
-        minPoolSize: 2
-    }).then(() => {
-        console.log("successfully connected to MongoDB")
-    }).catch((err) => { console.log("Database connection error:", err.message) })
-} catch (err) {
-    console.log("Mongoose connect sync error:", err.message);
-}
+const connectDB = async () => {
+    if (mongoose.connection.readyState >= 1) {
+        return;
+    }
+    try {
+        let uri = process.env.MONGODB_URI || "";
+        uri = uri.replace(/^["']|["']$/g, ""); // Strip accidental quotes
+        await mongoose.connect(uri, {
+            serverSelectionTimeoutMS: 5000,
+            maxPoolSize: 10,
+            minPoolSize: 2,
+            bufferCommands: false // Fail fast if not connected
+        });
+        console.log("successfully connected to MongoDB");
+    } catch (err) {
+        console.log("Database connection error:", err.message);
+    }
+};
+
+// Ensure DB connects before handling any request in serverless
+app.use(async (req, res, next) => {
+    await connectDB();
+    next();
+});
 
 app.use("/customers", customerRoutes);
 app.use('/products', productRoutes);
