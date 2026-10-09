@@ -44,7 +44,7 @@ app.use(express.json())
 
 const connectDB = async () => {
     if (mongoose.connection.readyState >= 1) {
-        return;
+        return null;
     }
     try {
         let uri = process.env.MONGODB_URI || "";
@@ -56,14 +56,18 @@ const connectDB = async () => {
             bufferCommands: false // Fail fast if not connected
         });
         console.log("successfully connected to MongoDB");
+        return null;
     } catch (err) {
-        console.log("Database connection error:", err.message);
+        return err.message;
     }
 };
 
 // Ensure DB connects before handling any request in serverless
 app.use(async (req, res, next) => {
-    await connectDB();
+    const dbError = await connectDB();
+    if (dbError) {
+        return res.status(500).json({ error: "Failed to connect to database", details: dbError });
+    }
     next();
 });
 
